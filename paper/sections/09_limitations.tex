@@ -52,3 +52,39 @@ Mixed-precision training nonetheless retains a small run-to-run
 non-determinism arising from non-deterministic atomic reductions in
 attention kernels. We document the residual variance in
 \texttt{tests/test\_reproducibility.py}.
+
+\paragraph{Regional failure mode: Po Valley summer haze.}
+Despite the strong overall European skill (RMSE $\approx 6.85$\,$\mu$g\,m$^{-3}$)
+and the favourable behaviour inside $\mathrm{Fr}<1$ regions
+(Sect.~\ref{sec:phys_ablation}), CRAN-PM v1.0 systematically
+under-predicts the Po Valley summer haze, when the dominant
+mechanism is photochemical aerosol formation rather than mechanical
+topographic trapping. Figure~\ref{fig:case_povalley} shows the worst
+observed day of 2022 (DOY 177, late June) where the GHAP truth peaks at
+$\sim 80\,\mu$g\,m$^{-3}$ over the Plain whereas the model returns
+$\sim 30\,\mu$g\,m$^{-3}$. We attribute this to the training-time
+distribution: the model was trained on the full year 2017–2020 but
+weighted by the wintertime hotspot sampling, so the
+heatwave-driven secondary-aerosol regime is under-represented. A
+re-trained variant with seasonally balanced hotspot weights is left
+for v0.2.
+
+\begin{figure}[!ht]
+  \centering
+  \includegraphics[width=\textwidth]{figures/fig_case_po_valley_topo.pdf}
+  \caption{\textbf{Po Valley topographic-blocking case study (failure mode).}
+  \textit{(a)} Europe-wide GHAP truth on DOY 177 of 2022 (late June);
+  the Po Valley zoom box is marked in red.
+  \textit{(b)–(c)} GHAP truth vs.\ CRAN-PM T+1 prediction inside the
+  zoom: the model misses the peak of the summer haze by
+  $\sim 40$–$50\,\mu$g\,m$^{-3}$.
+  \textit{(d)} West-to-east transect at $45.4^\circ$N (Milan latitude):
+  the model successfully resolves the Alpine and Apennine reliefs
+  bounding the basin (grey fill, right axis), but its predicted PM$_{2.5}$
+  values inside the basin are biased low.
+  \textit{(e)} Conceptual model of the trapping mechanism: a stable
+  boundary layer over the Plain, capped by an inversion lid and
+  bounded by the Alps (N) and Apennines (S). The model captures the
+  geometry but not the photochemical loading on this day.}
+  \label{fig:case_povalley}
+\end{figure}

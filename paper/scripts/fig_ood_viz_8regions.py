@@ -162,6 +162,8 @@ def make_scatter(region, out_dir):
     ghap_z = zarr.open(str(DATA_GLOBAL_GHAP), mode="r", zarr_format=2)
     lat0 = int(round((90.0 - GHAP_LAT_NORTH[region]) / GHAP_RES))
     lon0 = int(round((GHAP_LON_WEST[region] - (-180.0)) / GHAP_RES))
+    lon_full_pix = 36000     # global GHAP lon dim
+    wraps = (lon0 + GHAP_W) > lon_full_pix
 
     down = 4
     H, W = GHAP_H // down, GHAP_W // down
@@ -169,19 +171,30 @@ def make_scatter(region, out_dir):
     p_sum = np.zeros((H, W), dtype=np.float64)
     cnt = np.zeros((H, W), dtype=np.int32)
 
+    def _crop_global(z, d):
+        """Crop a day from the global GHAP zarr, handling antimeridian wrap."""
+        if not wraps:
+            return np.asarray(z[d, lat0:lat0 + GHAP_H,
+                                lon0:lon0 + GHAP_W], dtype=np.float32)
+        right = np.asarray(z[d, lat0:lat0 + GHAP_H,
+                              lon0:lon_full_pix], dtype=np.float32)
+        left = np.asarray(z[d, lat0:lat0 + GHAP_H,
+                             0:lon0 + GHAP_W - lon_full_pix], dtype=np.float32)
+        return np.concatenate([right, left], axis=1)
+
     print(f"[scatter {region}] accumulating {N_DAYS} days "
-          f"({H}x{W} downsampled by {down}) ...", flush=True)
+          f"({H}x{W} downsampled by {down}, wraps={wraps}) ...",
+          flush=True)
     for d in range(N_DAYS):
-        gt_full = np.asarray(ghap_z[d + 1, lat0:lat0 + GHAP_H,
-                                    lon0:lon0 + GHAP_W], dtype=np.float32)
+        gt_full = _crop_global(ghap_z, d + 1)
         pr_full = np.asarray(pred_z[d], dtype=np.float32)
-        # Box-down-sample.
+        # Box-down-sample (truncate to multiple of `down`).
         gt = gt_full[:H * down, :W * down].reshape(
             H, down, W, down).mean(axis=(1, 3))
         pr = pr_full[:H * down, :W * down].reshape(
             H, down, W, down).mean(axis=(1, 3))
-        pr = np.clip(pr, 0.0, None)
-        valid = gt > 0.5
+        pr = np.nan_to_num(np.clip(pr, 0.0, None), nan=0.0)
+        valid = np.isfinite(gt) & (gt > 0.5) & np.isfinite(pr)
         g_sum[valid] += gt[valid]
         p_sum[valid] += pr[valid]
         cnt[valid] += 1
@@ -243,15 +256,28 @@ def make_scatter(region, out_dir):
 
 
 # ── teaser (hotspot day) ──────────────────────────────────────────────────────
+def _crop_ghap_day(ghap_z, day, region):
+    """Crop a single day of GHAP for a region, handling antimeridian wrap."""
+    lat0 = int(round((90.0 - GHAP_LAT_NORTH[region]) / GHAP_RES))
+    lon0 = int(round((GHAP_LON_WEST[region] - (-180.0)) / GHAP_RES))
+    lon_full = ghap_z.shape[2]
+    if lon0 + GHAP_W <= lon_full:
+        return np.asarray(ghap_z[day, lat0:lat0 + GHAP_H,
+                                  lon0:lon0 + GHAP_W], dtype=np.float32)
+    right = np.asarray(ghap_z[day, lat0:lat0 + GHAP_H,
+                               lon0:lon_full], dtype=np.float32)
+    left = np.asarray(ghap_z[day, lat0:lat0 + GHAP_H,
+                              0:lon0 + GHAP_W - lon_full], dtype=np.float32)
+    return np.concatenate([right, left], axis=1)
+
+
 def find_hotspot_day(region):
     """Day with highest 99th-percentile GT PM2.5 over the region (downsampled scan)."""
     ghap_z = zarr.open(str(DATA_GLOBAL_GHAP), mode="r", zarr_format=2)
-    lat0 = int(round((90.0 - GHAP_LAT_NORTH[region]) / GHAP_RES))
-    lon0 = int(round((GHAP_LON_WEST[region] - (-180.0)) / GHAP_RES))
     best_d, best_v = 0, -1.0
     for d in range(N_DAYS):
-        s = ghap_z[d, lat0:lat0 + GHAP_H:50, lon0:lon0 + GHAP_W:50]
-        v = float(np.percentile(np.asarray(s, dtype=np.float32), 99))
+        s = _crop_ghap_day(ghap_z, d, region)[::50, ::50]
+        v = float(np.percentile(s, 99))
         if v > best_v:
             best_v = v; best_d = d
     return best_d, best_v
@@ -268,11 +294,8 @@ def make_teaser(region, out_dir):
 
     pred_z = zarr.open(str(pred_path), mode="r", zarr_format=2)
     ghap_z = zarr.open(str(DATA_GLOBAL_GHAP), mode="r", zarr_format=2)
-    lat0 = int(round((90.0 - GHAP_LAT_NORTH[region]) / GHAP_RES))
-    lon0 = int(round((GHAP_LON_WEST[region] - (-180.0)) / GHAP_RES))
 
-    gt = np.asarray(ghap_z[d_hot + 1, lat0:lat0 + GHAP_H,
-                            lon0:lon0 + GHAP_W], dtype=np.float32)
+    gt = _crop_ghap_day(ghap_z, d_hot + 1, region)
     pr = np.nan_to_num(
         np.asarray(pred_z[d_hot], dtype=np.float32), nan=0.0)
     pr = np.clip(pr, 0.0, None)
