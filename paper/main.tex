@@ -1,0 +1,154 @@
+%% CRAN-PM v1.0 — model description paper for Geoscientific Model Development
+%% (GMD, Copernicus). Built with copernicus.cls v7.14 (template files in
+%% _copernicus_template/, copied to paper root).
+
+\documentclass[gmd, manuscript]{copernicus}
+
+\graphicspath{{figures/}{figures_eccv_source/}{figures_cases/}}
+
+\begin{document}
+
+\title{CRAN-PM v1.0: a multi-scale Vision Transformer for high-resolution
+PM$_{2.5}$ forecasting over Europe}
+
+\Author[1,2][ammar.kheder@lut.fi]{Ammar}{Kheder}
+\Author[2,3]{Wenqing}{Peng}
+\Author[2,3]{Helmi}{Toropainen}
+\Author[1,2]{Zhi-Song}{Liu}
+\Author[1,2,3]{Michael}{Boy}
+
+\affil[1]{LUT University, Department of Computational Engineering,
+Lappeenranta, Finland}
+\affil[2]{Atmospheric Modelling Centre Lahti (AMC-Lahti), Lahti, Finland}
+\affil[3]{Institute for Atmospheric and Earth System Research (INAR),
+University of Helsinki, Helsinki, Finland}
+
+\runningtitle{CRAN-PM v1.0 -- multi-scale ViT for PM$_{2.5}$ forecasting}
+
+\runningauthor{A. Kheder et al.}
+
+\received{}
+\pubdiscuss{}
+\revised{}
+\accepted{}
+\published{}
+
+\firstpage{1}
+
+\maketitle
+
+\begin{abstract}
+We present \textbf{CRAN-PM v1.0}, an open-source Python package for
+short-range high-resolution surface PM$_{2.5}$ forecasting over Europe.
+The underlying model is a dual-branch Vision Transformer that fuses
+25\,km meteorological and chemistry fields with 1\,km satellite-derived
+PM$_{2.5}$ analyses through a cross-resolution attention bridge. Beyond
+its scientific accuracy (RMSE\,$=\,6.85$\,$\mu$g\,m$^{-3}$ at T+1 against
+2{,}971 EEA stations, 4.7--10.7\,\% lower than the best deep-learning
+baseline), the package emphasises reproducibility, GPU portability and
+accessibility to atmospheric scientists. CRAN-PM ships with a stable
+Python API, command-line interface, training and inference workflows,
+dual support for NVIDIA CUDA and AMD ROCm, container images, a
+HuggingFace model repository and a Gradio web demonstrator. We document
+the software architecture, the reproducibility infrastructure and three
+case studies of operational interest: the March~2022 Saharan dust
+intrusion, the July~2022 Iberian wildfires, and the January~2022
+Polish/Slovak winter heating episode.
+\end{abstract}
+
+
+\introduction
+\label{sec:intro}
+\input{sections/01_introduction}
+
+
+\section{Related software and data ecosystem}
+\label{sec:related}
+\input{sections/02_related}
+
+
+\section{Model description}
+\label{sec:model}
+\input{sections/03_model}
+
+
+\section{Software design}
+\label{sec:software}
+\input{sections/04_software}
+
+
+\section{Computational performance}
+\label{sec:perf}
+\input{sections/05_performance}
+
+
+\section{Evaluation}
+\label{sec:eval}
+\input{sections/06_evaluation}
+
+
+\section{Case studies}
+\label{sec:cases}
+\input{sections/07_cases}
+
+
+\section{Ablation study}
+\label{sec:ablation}
+\input{sections/08_ablation}
+
+
+\section{Limitations and outlook}
+\label{sec:limits}
+\input{sections/09_limitations}
+
+
+\conclusions
+\label{sec:conclusions}
+\input{sections/11_conclusions}
+
+
+\appendix
+%% Appendix A — theoretical justification of the elevation bias and
+%% the wind-guided patch ordering.
+\input{sections/appendix_B_theory}
+
+\noappendix
+
+
+\codedataavailability{%
+\input{sections/10_availability}
+}
+
+
+\authorcontribution{%
+AK conceived the multi-scale architecture, implemented the CRAN-PM
+package, ran all experiments and wrote the manuscript. WP
+contributed to the cross-resolution attention bridge and the ablation
+study. HT contributed to the data ingestion pipeline and the EEA
+station evaluation. ZSL contributed to the Vision Transformer design
+and supervised the deep-learning aspects. MB supervised the project,
+advised on scientific framing, and acquired the LUMI compute resources.
+All authors read and approved the final manuscript.
+}
+
+\competinginterests{%
+The authors declare that they have no competing interests.
+}
+
+\begin{acknowledgements}
+This work was carried out using computational resources from LUMI
+(CSC Finland) under EuroHPC project \texttt{462001140}. We thank
+Samuel Ant\~ao (AMD) for ROCm portability support, the GHAP team
+(W. Wei et al.) for sharing their satellite-derived PM$_{2.5}$ analyses,
+and the European Environment Agency for maintaining the open EEA
+monitoring archive.
+\end{acknowledgements}
+
+
+%% References — single bibliography compiled from the ECCV companion
+%% paper's references plus GMD-specific additions (datasets, baseline
+%% software, ROCm/CUDA toolchain).
+\bibliographystyle{copernicus}
+\bibliography{bib/eccv_refs,bib/gmd_extra}
+
+\end{document}

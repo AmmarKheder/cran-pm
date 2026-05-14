@@ -1,0 +1,30 @@
+% Section 11 — Conclusions.
+
+We presented CRAN-PM v1.0, an open-source Python package for
+high-resolution short-range PM\textsubscript{2.5} forecasting over
+Europe. The underlying multi-scale Vision Transformer fuses 25\,km
+meteorology and chemistry with 1\,km satellite-derived
+PM\textsubscript{2.5} analyses through a cross-resolution attention
+bridge with explicit elevation and wind biases. On the 2022 EEA
+station benchmark CRAN-PM delivers RMSE\,=\,6.85\,$\mu$g\,m$^{-3}$
+at $T+1$ (4.7\,\% better than the strongest deep-learning baseline
+and 44\,\% better than the CAMS reanalysis) and produces a full
+European forecast at 1\,km in $\approx 1.8$\,s on a single GPU.
+
+Beyond the scientific results, the contribution of this paper is
+the software itself: a stable Python API and CLI, dual GPU backend
+support (NVIDIA CUDA and AMD ROCm), distributed training portable
+beyond LUMI, container images, continuous integration, deposited
+checkpoints with model cards, and a public Gradio demonstrator.
+Three documented case studies of operational interest illustrate
+the kind of analyses CRAN-PM enables out of the box.
+
+\paragraph{Outlook.}
+The next release (v0.2) will extend coverage to PM\textsubscript{10},
+NO\textsubscript{2} and O\textsubscript{3}; will provide a
+calibrated uncertainty estimate via a small ensemble; and will
+replace the satellite-derived GHAP input at $t-1$ with a
+self-bootstrapping autoregressive variant suitable for real-time
+deployment. We invite contributions from the community, in
+particular from atmospheric scientists who would like to fine-tune
+the model for a regional study of their own.

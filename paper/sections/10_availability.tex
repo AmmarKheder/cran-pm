@@ -1,0 +1,78 @@
+% Section 10 — Code and data availability.
+% Mandatory section in GMD model description papers. Lists every
+% scientific artefact with a persistent identifier (DOI / archived URL).
+% Update version pins and DOIs before submission.
+
+The CRAN-PM v0.1.0 software is open source under the MIT licence. All
+artefacts referenced in this manuscript are publicly available:
+
+\paragraph{Source code.}
+The source repository is hosted on GitHub at
+\url{https://github.com/AmmarKheder/cran-pm}. The exact code used for the
+results reported here is archived at Zenodo with persistent identifier
+\texttt{10.5281/zenodo.XXXXXXX} (release \texttt{v0.1.0}). Continuous
+integration runs the unit and integration test suite on every push.
+
+\paragraph{Pre-trained model weights.}
+The CRAN-PM Europe v3 pre-trained checkpoint
+(\texttt{topoflow-016.ckpt}) is distributed on the HuggingFace Hub at
+\url{https://huggingface.co/AmmarKheder/cran-pm-europe-v3}. The release is
+pinned to commit hash \texttt{TBD}. The same checkpoint is mirrored at
+Zenodo (\texttt{10.5281/zenodo.YYYYYYY}).
+
+\paragraph{Container images.}
+Reproducible runtime environments for both NVIDIA CUDA and AMD ROCm are
+distributed via Docker Hub:
+\texttt{cranpm/cuda:0.1.0} and \texttt{cranpm/rocm:0.1.0}. Build recipes
+(\texttt{docker/Dockerfile.cuda}, \texttt{docker/Dockerfile.rocm}) are part
+of the source repository.
+
+\paragraph{Input data.}
+\begin{itemize}
+\item \textbf{ERA5} reanalysis (Hersbach et al., 2020) is available from
+the Copernicus Climate Data Store
+(\url{https://cds.climate.copernicus.eu}); the variables and pressure
+levels used by CRAN-PM are listed in Table~\ref{tab:inputs}. Download
+helpers are provided as \texttt{cranpm download era5}.
+
+\item \textbf{CAMS global atmospheric composition} (Inness et al., 2019) is
+available from the Atmosphere Data Store
+(\url{https://ads.atmosphere.copernicus.eu}). Download helper:
+\texttt{cranpm download cams}.
+
+\item \textbf{GHAP daily PM\textsubscript{2.5}} satellite-derived analysis
+at 1\,km (Wei et al., 2023) is available from
+\url{https://weijing-rs.github.io/product.html} and mirrored on Zenodo
+under DOI \texttt{10.5281/zenodo.6398971}.
+
+\item \textbf{GMTED2010 elevation} (Danielson and Gesch, 2011) is
+available from the U.S. Geological Survey at
+\url{https://www.usgs.gov/coastal-changes-and-impacts/gmted2010}.
+
+\item \textbf{EEA air-quality stations} (European Environment Agency, 2024)
+are downloaded from
+\url{https://discomap.eea.europa.eu/Map/UI/Default.aspx} via the
+\texttt{cranpm download eea} command. The exact station list and
+quality-control filters used in this study are recorded in the GitHub
+release.
+\end{itemize}
+
+\paragraph{Forecasts produced for this paper.}
+The full set of CRAN-PM forecasts on the test years analysed in
+Section~\ref{sec:eval} (zarr archives, $\sim$160\,GB) is deposited at
+Zenodo with DOI \texttt{10.5281/zenodo.ZZZZZZZ}. Smaller exports for
+each case study (Section~\ref{sec:cases}) are bundled with the release.
+
+\paragraph{Reproducing the experiments.}
+A single command-line invocation regenerates each figure or table from
+the deposited intermediate outputs, e.g.\
+\begin{verbatim}
+cranpm reproduce --figure fig_method_comparison --year 2022
+cranpm reproduce --table table_main_results
+\end{verbatim}
+Re-running training from scratch requires LUMI-equivalent resources
+(64 GPU-days for the production model with the configuration in
+\texttt{configs/europe\_multiscale.yaml}). A reduced configuration
+(\texttt{configs/europe\_small\_test.yaml}) trains in $\sim$2\,h on a
+single MI250X GCD or A100 and produces a working but lower-resolution
+model intended for smoke-testing.

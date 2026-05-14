@@ -1,0 +1,54 @@
+% Section 9 — Limitations and outlook.
+% Reuses the ECCV "Limitations" subsection but expands with software /
+% deployment limitations relevant to GMD readers.
+
+We highlight the limitations of the current release so that prospective
+users and contributors can decide whether CRAN-PM is appropriate for
+their use case.
+
+\paragraph{Spatial coverage.}
+The pre-trained Europe model covers roughly $30^\circ$N--$72^\circ$N,
+$25^\circ$W--$45^\circ$E. Out-of-distribution evaluation on USA, Canada
+and India (Section~\ref{sec:eval}, Fig.~\ref{fig:robinson}) shows useful
+zero-shot transfer for some regions, but operational use outside Europe
+should be preceded by region-specific fine-tuning, for which we provide
+the \texttt{cranpm.training.finetune} entry point.
+
+\paragraph{Pollutants.}
+v1.0 forecasts only PM\textsubscript{2.5}. Extending to PM\textsubscript{10},
+NO\textsubscript{2} and O\textsubscript{3} is straightforward
+architecturally — only the output channel needs to change — but requires
+the corresponding reanalysis training targets.
+
+\paragraph{Lead time.}
+The model is trained for 1--4 day lead times. Extending to seasonal
+forecasting would require a different training setup (lower temporal
+resolution, larger context window).
+
+\paragraph{Operational input dependencies.}
+Inference at time $t$ requires: ERA5 (latency $\sim$5 days from
+Copernicus), CAMS analysis (low latency), and the GHAP daily PM2.5
+analysis at $t-1$ (longer latency, $\sim$2 weeks). Real-time deployment
+therefore requires either a near-real-time GHAP product or a
+self-bootstrapping autoregressive variant. We are exploring both as
+future work.
+
+\paragraph{Uncertainty.}
+The current release outputs a deterministic forecast. A simple
+Monte-Carlo dropout estimate is provided as
+\texttt{cranpm.inference.uncertainty}, but a properly calibrated ensemble
+(multi-seed or perturbed-input) is left for v0.2.
+
+\paragraph{Compute requirements.}
+End-to-end training requires roughly 64 GPU-days on MI250X / A100. This
+is moderate by deep-learning standards but precludes laptop-only training.
+Inference is much cheaper: a full European map at 1\,km is produced in
+\textasciitilde 1.8\,s on a single GPU.
+
+\paragraph{Reproducibility caveats.}
+The MIOpen workaround in the patch-embedding (Section~\ref{sec:software})
+ensures bit-identical results between CUDA and ROCm at \texttt{bf16}.
+Mixed-precision training nonetheless retains a small run-to-run
+non-determinism arising from non-deterministic atomic reductions in
+attention kernels. We document the residual variance in
+\texttt{tests/test\_reproducibility.py}.

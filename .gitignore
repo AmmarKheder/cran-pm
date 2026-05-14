@@ -1,0 +1,117 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+venv_*/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+coverage.xml
+*.cover
+
+# mypy / ruff
+.mypy_cache/
+.ruff_cache/
+
+# Docs
+docs/_build/
+site/
+
+# ML artifacts (NEVER commit these)
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.bin
+checkpoints*/
+lightning_logs/
+wandb/
+mlruns/
+
+# Data (NEVER commit large data)
+data/
+*.zarr/
+*.nc
+*.npz
+*.npy
+*.h5
+*.hdf5
+*.tif
+*.tiff
+!tests/data/**/*.npz
+!examples/data/**/*.nc
+
+# SLURM logs
+slurm-*.out
+*.out
+*.err
+
+# Secrets
+.cdsapirc
+.netrc
+.huggingface/
+*.key
+secrets.yaml
+.env.local
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Large paper artefacts that exceed GitHub's 100 MB single-file limit.
+# These are mirrored in the Zenodo data bundle (cited from the paper).
+paper/figures/fig_best_day_comparison.pdf
+paper/figures/fig_annual_mean_europe.pdf
+paper/figures/fig_case_iberian_fires_maps.pdf
+paper/figures/fig_case_polish_winter_maps.pdf
+paper/figures/fig_case_saharan_dust_maps.pdf
+paper/figures/fig_input_data_flow.pdf
+paper/figures_eccv_source/ood_city_zoom.pdf
+
+# Backup files (article.cls version before Copernicus migration).
+paper/main_article.tex.bak
+paper/_copernicus_template/

@@ -1,0 +1,43 @@
+% Ablation table — typeset from evaluation_2022/ablation_table_full.json.
+% Two parts:
+%   (A) cross-attention design alternatives (5 variants)
+%   (B) component build-up from "Fine-only ViT" to "Full CRAN-PM" (6 rows)
+%
+% Both parts evaluated on the same 90-day window, T+1, v10f checkpoint
+% (topoflow-018.ckpt) against EEA stations + GHAP analysis.
+
+\begin{table}[!ht]
+  \centering
+  \small
+  \caption{\textbf{Architectural ablation of CRAN-PM} on a 90-day window
+  of the validation year (2021) at $T+1$. \textbf{Top:} alternative
+  designs for the cross-resolution bridge, keeping the rest of the model
+  fixed. \textbf{Bottom:} cumulative build-up from a single-branch
+  Fine-only ViT to the full CRAN-PM, adding one component at a time.
+  The full model (\textit{Fine queries Coarse, ours}) wins on RMSE and
+  Pearson~$r$, while \textit{No cross-attention} is competitive on
+  point metrics but loses the spatial-coherence advantage visible in
+  the case-study transects (Section~\ref{sec:cases}).}
+  \label{tab:ablation}
+  \begin{tabular}{l r r r r r}
+    \toprule
+    Variant & RMSE & MAE & $R^2$ & $r$ & Bias \\
+            & ($\mu$g\,m$^{-3}$) & ($\mu$g\,m$^{-3}$) & & & ($\mu$g\,m$^{-3}$) \\
+    \midrule
+    \multicolumn{6}{l}{\textit{(A) Cross-attention design (same model otherwise)}} \\[2pt]
+    (i)~~~No cross-attention                       & 6.39 & 3.30 & 0.488 & 0.729 & $-0.21$ \\
+    (iii)~Feature addition                         & 6.40 & 3.32 & 0.485 & 0.725 & $-0.24$ \\
+    (v)~~Coarse queries, fine keys/values          & 6.38 & 3.34 & 0.483 & 0.728 & $+0.05$ \\
+    (vi)~Bidirectional cross-attention             & 6.40 & 3.43 & 0.467 & 0.731 & $+0.45$ \\
+    \textbf{(vii) Fine queries, coarse k/v (ours)} & \textbf{6.37} & 3.36 & 0.479 & \textbf{0.732} & $+0.21$ \\
+    \midrule
+    \multicolumn{6}{l}{\textit{(B) Component build-up (each row adds the named component)}} \\[2pt]
+    (A) Fine-only ViT                              & 6.50 & 3.41 & 0.478 & 0.718 & $-0.19$ \\
+    (B) ~+ coarse (global) branch                  & 6.50 & 3.41 & 0.478 & 0.718 & $-0.19$ \\
+    (C) ~+ cross-scale attention                   & 6.46 & 3.50 & 0.476 & 0.724 & $+0.38$ \\
+    (D) ~+ elevation-aware bias                    & 6.53 & 3.58 & 0.447 & 0.722 & $+0.74$ \\
+    (E) ~+ wind-guided reordering                  & 6.53 & 3.58 & 0.446 & 0.722 & $+0.76$ \\
+    \textbf{(F) Full CRAN-PM}                      & \textbf{6.37} & 3.36 & 0.479 & \textbf{0.732} & $+0.21$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}

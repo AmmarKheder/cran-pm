@@ -1,0 +1,20 @@
+{
+  "wind": {
+    "train_loss_final": 0.16959650814533234,
+    "val_loss_final": 0.2522784173488617,
+    "val_rmse_final": 4.467329502105713,
+    "val_rmse_min": 4.467329502105713
+  },
+  "random": {
+    "train_loss_final": 0.17147429287433624,
+    "val_loss_final": 0.26225149631500244,
+    "val_rmse_final": 4.510395050048828,
+    "val_rmse_min": 4.510395050048828
+  },
+  "raster": {
+    "train_loss_final": 0.1700761765241623,
+    "val_loss_final": 0.2528580129146576,
+    "val_rmse_final": 4.464837551116943,
+    "val_rmse_min": 4.464837551116943
+  }
+}

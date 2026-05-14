@@ -1,0 +1,78 @@
+% Section 7 — Case studies (NEW for GMD). Each case study uses
+% sbatch_case_study.sh + fig_case_study.py. Numbers TBD until SLURM
+% jobs run, but the narrative structure is in place.
+
+We document three case studies of operational interest from 2022.
+Each case is reproducible end-to-end through a single SLURM
+submission (\texttt{paper/scripts/sbatch\_case\_study.sh}) followed
+by the figure script (\texttt{paper/scripts/fig\_case\_study.py}).
+For each case we show four-panel maps (observed, CRAN-PM, CAMS
+forecast, persistence) on the day of peak intensity, and station
+time series at six representative EEA monitors.
+
+\subsection{Saharan dust intrusion (14--19 March 2022)}
+\label{sec:case:saharan}
+
+A massive Saharan dust outbreak ("Calima") affected southern and
+western Europe in mid-March 2022, with PM\textsubscript{10} and
+PM\textsubscript{2.5} concentrations exceeding the EU 24-hour
+limit value at hundreds of stations from Spain to the United
+Kingdom. The episode is well documented in remote-sensing imagery
+(MODIS aerosol optical depth) and required interventions from
+several national air-quality agencies.
+
+This case stresses the model's ability to reproduce
+\emph{long-range} aerosol transport, which is mediated by
+synoptic-scale wind patterns. The CAMS regional forecast captures
+the broad outlines of the episode but underestimates the peak
+near-surface concentrations because of its coarser resolution and
+its limited representation of the local boundary-layer dynamics.
+
+% \begin{figure}[!ht]
+%   \centering
+%   \includegraphics[width=\textwidth]{figures_cases/saharan-dust/fig_case_saharan_dust_maps.pdf}
+%   \caption{\textbf{Saharan dust intrusion, March 2022 case study.}
+%   Four-panel comparison on the peak day. Top row: observed (GHAP),
+%   CRAN-PM forecast. Bottom row: operational CAMS forecast, persistence.}
+%   \label{fig:case_saharan}
+% \end{figure}
+
+% TODO: insert maps and station time series after running
+% `sbatch sbatch_case_study.sh saharan-dust 2022-03-14 2022-03-19`.
+
+\subsection{Iberian Peninsula wildfires (14--22 July 2022)}
+\label{sec:case:iberian}
+
+Summer 2022 was the worst wildfire season on record in Spain and
+Portugal. The Sierra de la Culebra fire (Spain) produced large
+PM\textsubscript{2.5} plumes that travelled hundreds of kilometres.
+
+This case stresses the model's ability to reproduce
+\emph{transient, locally concentrated} emissions of biomass-burning
+aerosol, which are challenging for chemistry-transport models that
+rely on satellite-derived emission inventories with several days of
+latency. Because CRAN-PM ingests the GHAP PM\textsubscript{2.5}
+analysis at $t-1$, it inherits the satellite plume signature and
+propagates it forward.
+
+% TODO: insert maps and station time series after running
+% `sbatch sbatch_case_study.sh iberian-fires 2022-07-14 2022-07-22`.
+
+\subsection{Polish/Slovak winter heating episode (8--18 January 2022)}
+\label{sec:case:polish}
+
+A cold snap in early January 2022 drove residential coal and biomass
+combustion to peak levels in Central Europe. Krakow, Katowice
+(Poland), Ostrava (Czech Republic) and Bratislava (Slovakia) all
+recorded multi-day PM\textsubscript{2.5} concentrations above
+75\,$\mu$g\,m$^{-3}$, four times the EU annual limit.
+
+This case stresses the model's ability to resolve
+\emph{urban-scale gradients} (within a $\sim 50$\,km radius) that
+the operational CAMS forecast smears out. The case is also
+politically important: persistent winter exceedances in Central
+Europe are central to the EU Air Quality Directive infringement
+proceedings and to the funding of clean-heating subsidy programmes.
+
+% TODO: insert maps and station time series after running
+% `sbatch sbatch_case_study.sh polish-winter 2022-01-08 2022-01-18`.

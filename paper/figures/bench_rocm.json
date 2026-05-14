@@ -1,0 +1,119 @@
+{
+  "backend": "rocm",
+  "platform": "Linux-6.4.0-150600.23.73_15.0.14-cray_shasta_c-x86_64-with-glibc2.38",
+  "torch_version": "2.4.1+rocm6.0",
+  "torch_hip": true,
+  "torch_cuda": "",
+  "checkpoint": "/pfs/lustrep1/scratch/project_462001140/ammar/eccv/topoflow_europe/checkpoints_v3_best524/topoflow-016.ckpt",
+  "warmup_iter": 5,
+  "measure_iter": 50,
+  "device_info": {
+    "device": "cuda:0",
+    "cuda_available": true,
+    "device_name": "AMD Instinct MI250X",
+    "device_capability": [
+      9,
+      0
+    ],
+    "torch_hip": true,
+    "torch_cuda": ""
+  },
+  "results": [
+    {
+      "batch_size": 1,
+      "precision": "bf16",
+      "per_call_ms": 15.767555544152856,
+      "tiles_per_sec": 63.42137163872772,
+      "maps_per_sec": 0.5033442193549819,
+      "peak_mem_mib": 698.353515625
+    },
+    {
+      "batch_size": 2,
+      "precision": "bf16",
+      "per_call_ms": 26.361187333241105,
+      "tiles_per_sec": 75.86911677070124,
+      "maps_per_sec": 0.6021358473865178,
+      "peak_mem_mib": 844.3359375
+    },
+    {
+      "batch_size": 4,
+      "precision": "bf16",
+      "per_call_ms": 47.633515391498804,
+      "tiles_per_sec": 83.9744866009592,
+      "maps_per_sec": 0.666464179372692,
+      "peak_mem_mib": 1134.68212890625
+    },
+    {
+      "batch_size": 8,
+      "precision": "bf16",
+      "per_call_ms": 89.26408129744232,
+      "tiles_per_sec": 89.62171439756054,
+      "maps_per_sec": 0.7112834475996868,
+      "peak_mem_mib": 1715.81982421875
+    },
+    {
+      "batch_size": 1,
+      "precision": "fp16",
+      "per_call_ms": 14.952266616746783,
+      "tiles_per_sec": 66.87949229583585,
+      "maps_per_sec": 0.5307896213955225,
+      "peak_mem_mib": 699.75439453125
+    },
+    {
+      "batch_size": 2,
+      "precision": "fp16",
+      "per_call_ms": 25.433540185913444,
+      "tiles_per_sec": 78.63631981157366,
+      "maps_per_sec": 0.6240977762823307,
+      "peak_mem_mib": 847.8154296875
+    },
+    {
+      "batch_size": 4,
+      "precision": "fp16",
+      "per_call_ms": 46.68403663672507,
+      "tiles_per_sec": 85.68239355834342,
+      "maps_per_sec": 0.680018996494789,
+      "peak_mem_mib": 1134.44580078125
+    },
+    {
+      "batch_size": 8,
+      "precision": "fp16",
+      "per_call_ms": 88.41153563931584,
+      "tiles_per_sec": 90.4859297166474,
+      "maps_per_sec": 0.7181422993384715,
+      "peak_mem_mib": 1716.6455078125
+    },
+    {
+      "batch_size": 1,
+      "precision": "fp32",
+      "per_call_ms": 21.290078219026327,
+      "tiles_per_sec": 46.97023607486462,
+      "maps_per_sec": 0.3727796513878145,
+      "peak_mem_mib": 527.07177734375
+    },
+    {
+      "batch_size": 2,
+      "precision": "fp32",
+      "per_call_ms": 40.03779829479754,
+      "tiles_per_sec": 49.95279673657473,
+      "maps_per_sec": 0.3964507677505931,
+      "peak_mem_mib": 693.26513671875
+    },
+    {
+      "batch_size": 4,
+      "precision": "fp32",
+      "per_call_ms": 72.13929406367242,
+      "tiles_per_sec": 55.44828310170978,
+      "maps_per_sec": 0.44006573890245854,
+      "peak_mem_mib": 1024.84765625
+    },
+    {
+      "batch_size": 8,
+      "precision": "fp32",
+      "per_call_ms": 137.42790713906288,
+      "tiles_per_sec": 58.21233959347736,
+      "maps_per_sec": 0.46200269518632825,
+      "peak_mem_mib": 1687.8388671875
+    }
+  ]
+}

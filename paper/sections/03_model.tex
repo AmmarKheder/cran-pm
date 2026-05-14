@@ -1,0 +1,143 @@
+% Section 3 — Model description.
+% Largely ported from the ECCV Method section, with terminology
+% adjusted for the GMD audience and equation references kept stable.
+
+This section summarises the CRAN-PM model architecture. The
+mathematical motivation and detailed comparison to alternative
+designs are reported in the methodology paper~\citep{kheder2026eccv};
+here we focus on the level of detail required to read the source
+code and reproduce a forecast.
+
+\subsection{Forecasting problem and conventions}
+\label{sec:model:problem}
+
+We forecast surface PM\textsubscript{2.5} at 1\,km spatial resolution
+over Europe ($30^\circ$N--$72^\circ$N, $25^\circ$W--$45^\circ$E,
+$4{,}192 \times 6{,}992$ pixels at 0.01$^\circ$) at lead times
+$\tau \in \{1, 2, 3, 4\}$ days. The forecast valid at day $t+\tau$
+is decomposed as
+\begin{equation}
+\hat{y}_{t+\tau}(s) = x^{\ell}_t(s) + f_\theta\!\big(\mathbf{x}^{\text{g}}_t,
+\mathbf{x}^{\ell}_t, \tau\big)(s),
+\label{eq:delta}
+\end{equation}
+where $x^{\ell}_t(s)$ is the observed (GHAP) PM\textsubscript{2.5}
+at pixel $s$ on day $t$, $\mathbf{x}^{\text{g}}_t$ is the global
+meteorology + chemistry input and $\mathbf{x}^{\ell}_t$ the local
+high-resolution input. The neural network $f_\theta$ outputs a
+\emph{delta} (residual change) that is added to today's analysis.
+The final convolution of $f_\theta$ is initialised to zero, so that
+training starts from a persistence baseline $\hat{y}_{t+\tau} \equiv
+x^{\ell}_t$ and the model only needs to learn the day-to-day
+\emph{change} \citep{bi2023pangu, lam2023graphcast}.
+
+\subsection{Inputs}
+\label{sec:model:inputs}
+
+\paragraph{Global branch (25\,km).}
+The global input $\mathbf{x}^{\text{g}}_t \in \mathbb{R}^{70 \times 168 \times 280}$
+stacks (i)~ERA5 surface and pressure-level fields at days $t$ and
+$t-1$ (60 channels), and (ii)~CAMS analysis of six pollutants
+(NO\textsubscript{2}, O\textsubscript{3}, SO\textsubscript{2}, CO,
+PM\textsubscript{10} plus PM\textsubscript{2.5}) at days $t$ and
+$t-1$ (10 channels). The grid is 0.25$^\circ$. Variable definitions,
+units and pressure levels are listed in Table~\ref{tab:inputs}.
+
+\paragraph{Local branch (1\,km).}
+The local input $\mathbf{x}^{\ell}_t \in \mathbb{R}^{5 \times 512 \times 512}$
+contains, on a $512\!\times\!512$ tile, (i)~the GHAP
+PM\textsubscript{2.5} analysis at days $t$ and $t-1$,
+(ii)~GMTED2010 elevation downsampled to 0.01$^\circ$,
+(iii)~latitude and longitude as auxiliary positional channels.
+A pan-European inference pass tiles the domain into 126 overlapping
+tiles and stitches the residual outputs.
+
+\subsection{Architecture overview}
+\label{sec:model:arch}
+
+Figure~\ref{fig:architecture} shows the dual-branch design.
+\begin{enumerate}
+\item The \textbf{global branch} encodes coarse meteorology with a
+Vision Transformer of patch size $8 \times 8$, embedding dimension
+$d_g = 768$, depth 8 (one elevation-aware block followed by 7
+Swin-style blocks) and 12 attention heads. Patches are reordered
+along the local wind direction prior to the transformer
+(\emph{wind-guided shuffling}, \S\ref{sec:model:wind}).
+
+\item The \textbf{local branch} processes a $512 \times 512$ tile
+through a Vision Transformer of patch size $16 \times 16$,
+$d_\ell = 512$, depth 6 and 8 heads. A learnable lead-time
+embedding $\mathbf{E}_{\text{lead}}(\tau)$ is added to the patch
+embeddings.
+
+\item A \textbf{cross-resolution attention bridge}
+(\S\ref{sec:model:cross}) lets local tokens query the global tokens
+and integrate large-scale context.
+
+\item A \textbf{convolutional decoder} progressively upsamples the
+fused $32 \times 32$ token grid to $512 \times 512$ via four
+PixelShuffle blocks \citep{shi2016pixelshuffle}, ending with a
+zero-initialised $1 \times 1$ convolution that produces the residual
+$\Delta$ (\S\ref{sec:model:problem}).
+\end{enumerate}
+
+\subsection{Elevation-aware attention}
+\label{sec:model:elev}
+
+For an attention pair $(i, j)$ with mean tile elevations $E_i, E_j$,
+we add an asymmetric bias to the attention logits before the
+softmax:
+\begin{equation}
+B^{\text{elev}}_{ij} = -\alpha \,\text{ReLU}\!\Big(\frac{E_j - E_i}{E_0}\Big),
+\quad B^{\text{elev}}_{ij} \in [-10, 0],
+\end{equation}
+with $\alpha$ learnable per head and $E_0 = 1{,}000$\,m for the
+global branch and $500$\,m for the local branch. The bias penalises
+attention from low-elevation queries to high-elevation keys, which
+is consistent with the dominant katabatic transport pattern in
+mountain valleys \citep{whiteman2000mountain}.
+
+\subsection{Wind-guided cross-attention}
+\label{sec:model:cross}
+
+The cross-resolution bridge is composed of two cross-attention
+layers in which local tokens act as queries and the global tokens,
+linearly projected to dimension $d_\ell$, act as keys and values.
+A wind-guided bias encodes upwind alignment:
+\begin{equation}
+\gamma_{ij} = \frac{(\mathbf{p}_i - \mathbf{p}_j)}{\|\mathbf{p}_i -
+\mathbf{p}_j\|} \cdot \frac{(u_{10,i}, v_{10,i})}{\|(u_{10,i}, v_{10,i})\|},
+\qquad
+B^{\text{wind}}_{ij} = \beta \cdot \gamma_{ij},
+\end{equation}
+where $\mathbf{p}_i$ are tile-centre coordinates, $(u_{10}, v_{10})$
+is the surface wind from ERA5 and $\beta$ is learnable per head.
+Adding $B^{\text{wind}}$ to the cross-attention logits makes the
+bridge prefer to attend in the upwind direction, which is the
+physical advection path of pollutants.
+
+\subsection{Wind-guided shuffling in the global branch}
+\label{sec:model:wind}
+
+Inside the global branch, each $7 \times 7$ patch group is
+reordered before the transformer according to a 16-sector
+quantisation of the local mean wind. This aligns the sequence
+processing with the transport direction \citep{topoflow}.
+
+\subsection{Training objective}
+\label{sec:model:loss}
+
+The model is trained with a sum of three terms:
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\text{pixel}}
+            + \lambda_{\text{FFL}} \,\mathcal{L}_{\text{FFL}}
+            + \lambda_{\text{station}} \,\mathcal{L}_{\text{station}}.
+\end{equation}
+$\mathcal{L}_{\text{pixel}}$ is a land-only mean-squared error
+between $\hat{y}_{t+\tau}$ and the GHAP target.
+$\mathcal{L}_{\text{FFL}}$ is the focal frequency loss
+\citep{jiang2021focal} that emphasises high-frequency spatial
+errors. $\mathcal{L}_{\text{station}}$ anchors the prediction at
+the $N_s = 2{,}971$ EEA stations included in the training set,
+acting as a soft regulariser against systematic biases.
+We set $\lambda_{\text{FFL}} = \lambda_{\text{station}} = 0.1$.

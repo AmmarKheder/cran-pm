@@ -1,0 +1,88 @@
+% Section 2 — Related software and data ecosystem. Replaces the ECCV
+% related-work section with a software/community survey relevant to
+% atmospheric scientists.
+
+We survey the existing software and data landscape for European
+PM\textsubscript{2.5} forecasting along three axes: physics-based
+operational models, machine-learning weather and chemistry models, and
+satellite-derived high-resolution analyses. Table~\ref{tab:related}
+summarises licence, native resolution, lead time and accelerator support.
+
+\subsection{Physics-based operational models}
+
+The Copernicus Atmosphere Monitoring Service regional ensemble (CAMS,
+\citealp{cams}) blends nine national chemistry transport models
+(EMEP, LOTOS-EUROS, CHIMERE, MOCAGE, SILAM, MATCH, MINNI, EURAD-IM,
+GEM-AQ) at a nominal resolution of 0.1$^\circ$. Operational outputs are
+freely available through the Atmosphere Data Store but the source
+code of individual models is not uniformly open. EMEP-MSC-W
+\citep{simpson2012emep} and LOTOS-EUROS \citep{schaap2008lotos} are
+two notable exceptions, with permissive open-source licences and
+active community releases. Their compute cost prohibits routine
+1\,km production: a single 0.1$^\circ$ EMEP run over Europe takes
+on the order of $10^4$ CPU-hours per simulated year, and a 1\,km
+configuration would scale roughly with the inverse square of grid
+spacing.
+
+\subsection{ML-based weather and air-quality models}
+
+The recent generation of data-driven weather models (Pangu-Weather,
+\citealp{bi2023pangu}; GraphCast, \citealp{lam2023graphcast};
+Aurora, \citealp{bodnar2024aurora}; ClimaX, \citealp{nguyen2023climax})
+has demonstrated that ViT- or graph-based architectures can match or
+beat operational NWP at coarse-to-medium resolution and a fraction of
+the inference cost. Most of these models are released as research
+code with single-GPU inference; only Aurora ships pre-trained weights
+for an air-quality variant, and at a 25\,km nominal resolution. None
+target the 1\,km surface-PM forecasting problem.
+
+In the dedicated AQ literature, ConvLSTM \citep{shi2015convlstm},
+SimVP \citep{gao2022simvp} and Earthformer \citep{gao2022earthformer}
+have been used as fine-resolution PM\textsubscript{2.5} forecasters
+in regional studies. They typically tile the domain at a single
+resolution, which limits either the spatial detail (when chosen
+coarse) or the receptive field (when chosen fine). CRAN-PM is to our
+knowledge the first model that operates simultaneously on 25\,km
+meteorology and 1\,km PM\textsubscript{2.5} via a learnt
+cross-resolution attention bridge.
+
+\subsection{High-resolution satellite-derived analyses}
+
+The GHAP daily PM\textsubscript{2.5} product \citep{wei2023ghap}
+provides 1\,km global retrospective analyses by combining MAIAC
+aerosol optical depth, surface stations and meteorological reanalysis
+through a tree-based ML model. Latency is on the order of two weeks,
+which makes GHAP a reference for retrospective evaluation but not a
+forecast product. CRAN-PM uses GHAP as both training target and as
+the high-resolution input channel at the forecast initialisation
+time.
+
+\subsection{A note on WRF-Chem and the choice of physics reference}
+
+WRF-Chem \citep{grell2005wrfchem} is the standard online-coupled
+chemistry-transport extension of WRF and would in principle be the
+most natural physics-based reference for a paper on PM\textsubscript{2.5}
+forecasting. We do not include it in the comparison because no
+operational European WRF-Chem run at our test resolution is
+publicly archived for the test year 2022. Re-running WRF-Chem over
+the European domain at 1\,km for a representative subset of days
+would require on the order of $10^5$ CPU-hours, beyond the budget of
+this software paper. CAMS regional, which bundles nine
+chemistry-transport models including WRF-class physics, is therefore
+used as the operational physics reference throughout this manuscript.
+
+\subsection{Position of CRAN-PM v1.0}
+
+CRAN-PM v1.0 sits in a previously empty cell of the matrix in
+Table~\ref{tab:related}: it is the only open-source, dual-backend
+(CUDA + ROCm), 1\,km-native, short-range PM\textsubscript{2.5}
+forecasting tool aimed at atmospheric scientists. It does not
+replace operational chemistry-transport models, which remain the
+authoritative source of process understanding, but complements them
+by delivering high-resolution short-range forecasts at orders of
+magnitude lower compute cost.
+
+% TODO: typeset Table~\ref{tab:related} in tables/table_related.tex
+% (a software-ecosystem comparison: model name, license, native
+% resolution, lead time, accelerator support, training data
+% availability).

@@ -1,0 +1,81 @@
+% Section 1 — Introduction. Geosciences framing (not ML conference framing).
+
+Ambient fine particulate matter (PM\textsubscript{2.5}) is the
+single largest environmental health risk in Europe, contributing to
+roughly 240{,}000 premature deaths in 2022 (European Environment
+Agency, 2024). The 2024 revision of the EU Ambient Air Quality
+Directive lowers the annual mean PM\textsubscript{2.5} target from
+25 to 10\,$\mu$g\,m$^{-3}$, in line with the World Health Organization
+guidelines, and obliges Member States to deliver dense and accurate
+short-range forecasts to the public. This requirement is challenging
+because PM\textsubscript{2.5} fields exhibit very strong spatial
+gradients (urban hot-spots, valleys, coastlines, smoke plumes)
+that are not resolved by current operational chemistry-transport
+models running at 0.1$^\circ$ to 0.4$^\circ$.
+
+The Copernicus Atmosphere Monitoring Service (CAMS) regional
+ensemble \citep{cams} delivers operational forecasts at a nominal
+resolution of about 10\,km. National systems such as LOTOS-EUROS
+\citep{schaap2008lotos} and EMEP-MSC-W \citep{simpson2012emep} run
+at comparable resolutions. While these models embed detailed
+representations of atmospheric chemistry and transport, their grid
+spacing remains an order of magnitude coarser than what users
+require for site-level guidance, and producing a single forecast at
+1\,km would multiply their compute cost by $\sim$100. At the other
+end of the spectrum, satellite-derived analyses such as
+GHAP \citep{wei2023ghap} provide retrospective 1\,km estimates,
+but with a several-day latency and no forecast capability.
+
+Recent deep-learning weather and air-quality models (Pangu,
+\citealp{bi2023pangu}; GraphCast, \citealp{lam2023graphcast};
+Aurora, \citealp{bodnar2024aurora}; ClimaX, \citealp{nguyen2023climax})
+have demonstrated that data-driven approaches can rival or exceed
+operational physics-based forecasts at coarse-to-medium resolution.
+None of them currently produce continental fine-resolution PM
+forecasts: the per-step token count of a 1\,km Vision Transformer over
+Europe ($\sim 4{,}000 \times 8{,}000$ pixels) exceeds the memory of
+any single accelerator. This paper introduces \textbf{CRAN-PM v1.0}
+to close this gap: a multi-scale Vision Transformer that fuses
+25\,km meteorology with 1\,km PM\textsubscript{2.5} analyses through
+a cross-resolution attention bridge, packaged as an open-source
+Python tool.
+
+\paragraph{Contributions of this paper.}
+This manuscript is a model description paper accompanying
+the methodology paper \citet{kheder2026eccv}. We focus on the
+software contribution and on aspects that matter for community
+adoption rather than benchmark numbers.
+\begin{itemize}
+\item \textbf{An open-source, pip-installable Python package}
+(\texttt{cranpm}) with a stable public API
+(\texttt{CRANPMForecaster.from\_pretrained}, \texttt{.predict}),
+a command-line interface, and a documented configuration system.
+\item \textbf{Dual GPU backend support} for NVIDIA CUDA and AMD ROCm,
+including container images for both, distributed training that is
+portable beyond LUMI, and a reproducible benchmarking harness.
+\item \textbf{Reproducibility infrastructure}: continuous integration,
+pinned dependency set, deposited intermediate outputs and
+seedable training/eval workflows.
+\item \textbf{Three documented case studies of operational interest}:
+the March 2022 Saharan dust intrusion, the July 2022 Iberian
+wildfires, and the January 2022 Polish/Slovak winter heating
+episode (Section~\ref{sec:cases}).
+\end{itemize}
+
+\paragraph{Scope and roadmap.}
+Section~\ref{sec:related} situates CRAN-PM in the existing
+software ecosystem for European air-quality forecasting.
+Section~\ref{sec:model} summarises the model architecture (the
+mathematical content is shared with the methodology paper).
+Section~\ref{sec:software} is the heart of this manuscript: it
+documents the software architecture, the GPU backend abstractions
+and the reproducibility tooling. Section~\ref{sec:perf} reports
+single-GPU and distributed performance benchmarks.
+Section~\ref{sec:eval} extends the original evaluation with
+country- and season-stratified metrics and a comparison to the
+operational CAMS forecast. Section~\ref{sec:cases} walks through
+the three case studies. Section~\ref{sec:ablation} reports an
+ablation of the cross-attention design.
+Section~\ref{sec:limits} discusses limitations.
+Section~\ref{sec:availability} lists code, data, and reproduction
+recipes.

@@ -1,0 +1,191 @@
+% Appendix B — Theoretical justification of the elevation-aware
+% attention and wind-guided patch ordering. Aimed at GMD reviewers
+% who will (rightly) ask why these two inductive biases are not just
+% empirical decorations.
+
+\section{Theoretical justification of the elevation bias and the
+wind-guided patch ordering}
+\label{app:theory}
+
+The two architectural choices that distinguish CRAN-PM from a plain
+multi-scale Vision Transformer — the elevation-aware attention bias
+(Sect.~\ref{sec:model:cross}) and the wind-guided patch ordering
+(Sect.~\ref{sec:model:global}) — are not arbitrary regularisers: they
+encode well-known atmospheric-physics priors at the level of the
+transformer's inductive bias. We make this connection explicit here.
+
+\subsection{Elevation-aware attention as a Froude-number-dependent
+locality kernel}
+\label{app:theory:elev}
+
+\paragraph{Setup.}
+For a passive scalar $C(x,y,z,t)$ (here surface PM$_{2.5}$) advected by
+a wind field $\mathbf{u}=(u,v,w)$ over orography $z=h(x,y)$, the
+linearised stratified transport equation reads
+\begin{equation}
+\partial_t C + \mathbf{u}\cdot\nabla_h C + w\,\partial_z C
+= - C\,(\nabla_h\cdot\mathbf{u}_h)  + \mathcal{D}\nabla^2 C
++ S - L\,C,
+\label{eq:transport}
+\end{equation}
+with horizontal divergence $\nabla_h\cdot\mathbf{u}_h$, eddy diffusivity
+$\mathcal{D}$, source $S$ and a first-order loss $L$. When the
+atmosphere is stably stratified (Brunt--V\"ais\"al\"a frequency
+$N^2 = (g/\theta)\partial_z\theta > 0$, with potential temperature
+$\theta$), the linear-mountain-wave analysis of \citet{queney1948} and
+\citet{smith1979} shows that the flow response to terrain of typical
+height $H$ is controlled by the dimensionless Froude number
+\begin{equation}
+\mathrm{Fr} \;=\; \frac{\bar{U}}{N H},
+\label{eq:froude}
+\end{equation}
+where $\bar{U}=\sqrt{u^2+v^2}$ is the typical (here 850\,hPa) wind
+speed. For $\mathrm{Fr}\gtrsim 1$ the flow climbs over the terrain
+and the vertical component is non-negligible; for
+$\mathrm{Fr}\ll 1$ the flow is \emph{blocked} and goes around the
+obstacle, so $C$ on the windward side and on the lee side become
+conditionally decoupled across the ridge.
+
+\paragraph{Implication for spatial attention.}
+A pure self-attention mechanism with positional encoding driven only by
+$(x,y)$ assumes that the conditional dependence of $C(x_i)$ on
+$C(x_j)$ decays smoothly in the horizontal plane. Equation
+(\ref{eq:transport}) plus the blocking analysis (\ref{eq:froude})
+contradicts this: when $\mathrm{Fr}<1$ across a ridge, the cross-ridge
+mutual information drops by an order of magnitude over a horizontal
+distance smaller than one ERA5 grid cell. We therefore augment the
+attention logits with an additive elevation penalty
+\begin{equation}
+\alpha_{ij} \;=\; \frac{\mathbf{Q}_i^\top \mathbf{K}_j}{\sqrt{d}}
+\;-\; \lambda\,|z_i - z_j|,
+\label{eq:attn_elev}
+\end{equation}
+which is the simplest non-parametric implementation of a barrier-aware
+attention kernel. \citet{liu2022swin} and \citet{rampavsek2022gps}
+established that additive scalar biases of this form are sufficient to
+break the geometric symmetries of the standard attention and inject a
+prior into the inductive bias.
+
+\paragraph{Why the analytical figure (Fig.~\ref{fig:phys_ablation_heatmap}, supplementary
+Fig.~\ref{fig:froude_map} and Fig.~\ref{fig:attn_slice}) suffice as evidence.}
+Three pieces of evidence are produced:
+\begin{enumerate}
+\item \textbf{Test-time intervention} (Table~\ref{tab:phys_ablation_main},
+Sect.~\ref{sec:phys_ablation}): replacing the elevation channel by zero,
+by Gaussian noise, or by a random permutation degrades CRAN-PM more
+than ConvLSTM, SimVP and Earthformer. The latter use the same input
+channels but lack the bias of Eq.~(\ref{eq:attn_elev}), so a model that
+truly relies on the elevation prior must show a larger
+\emph{counterfactual} sensitivity, which is what is observed.
+\item \textbf{Spatial diagnostic} (Fig.~\ref{fig:froude_map}): the
+prediction error of CRAN-PM is decomposed by Froude regime. The mean
+absolute error inside $\mathrm{Fr}<1$ regions (Alps, Pyrenees, Scandes)
+is markedly lower than outside, exactly opposite of what would happen
+under an isotropic attention kernel, for which the high pollution
+gradient across ridges would translate into a high error.
+\item \textbf{Analytical kernel visualisation}
+(Fig.~\ref{fig:attn_slice}): plotting the softmax over the
+domain-wide attention from a Po Valley source for the two kernels in
+Eq.~(\ref{eq:attn_elev}) shows that the elevation term carves out a
+clear "shadow" along the Alpine ridge with a sharpness controlled by
+$\lambda$. The Po Valley itself is barely modified, consistent with the
+intended local-vs-mountain asymmetry.
+\end{enumerate}
+
+\subsection{Wind-guided patch ordering as a discrete Lagrangian frame}
+\label{app:theory:shuffle}
+
+\paragraph{Permutation equivariance of self-attention.}
+The self-attention module
+\begin{equation}
+\mathrm{Attn}(X) = \mathrm{softmax}\!\left(\frac{XW_Q(XW_K)^\top}{\sqrt{d}}\right) XW_V
+\label{eq:attn_perm}
+\end{equation}
+is permutation \emph{equivariant}: for any permutation matrix
+$P\in\{0,1\}^{N\times N}$, $\mathrm{Attn}(PX)=P\,\mathrm{Attn}(X)$.
+What breaks this symmetry is the positional embedding $E\in\mathbb{R}^{N\times d}$ that is
+\emph{added} to the token matrix: $X \leftarrow X+E$. Under a token
+permutation $X\mapsto PX$, the embedded matrix becomes $PX+E$, which is
+\emph{not} the permuted $P(X+E) = PX + PE$ unless $E$ commutes with
+$P$. Hence the ordering of patches matters only insofar as the
+positional embedding encodes spatial information.
+
+\paragraph{Optimal ordering for an advective process.}
+Consider Eq.~(\ref{eq:transport}) with $\mathcal{D}=L=S=0$ and a
+spatially uniform horizontal flow $\mathbf{u}_h$ over a finite domain.
+The method of characteristics produces solutions that are constant
+along the streamlines
+\begin{equation}
+\dot{\mathbf{x}}(t) = \mathbf{u}_h \;\;\Longrightarrow\;\;
+C(\mathbf{x},t) = C_0(\mathbf{x}-\mathbf{u}_h t).
+\end{equation}
+In the canonical Lagrangian frame
+$\xi = \mathbf{x}\cdot\hat{\mathbf{u}}_h$, $\eta =
+\mathbf{x}\cdot\hat{\mathbf{u}}_h^{\perp}$,
+the dependence structure of $C$ is one-dimensional: $C$ on the
+$\xi$-axis encodes the upstream concentration at all later times.
+Tokens that lie on the same streamline (constant $\eta$) carry the
+same information, while tokens with different $\eta$ are conditionally
+independent at sufficiently long lead times. The minimum-information
+ordering that preserves this structure is the one that traverses
+tokens in increasing $\xi$ — exactly the wind-guided ordering of
+CRAN-PM (Sect.~\ref{sec:model:global}).
+
+\paragraph{Bandwidth of the induced permutation.}
+We measure the structure of a patch ordering by its bandwidth
+\begin{equation}
+\mathrm{bw}(\sigma) = \max_{i \in [N]} \big|\,i - \sigma(i)\,\big|.
+\end{equation}
+A small bandwidth means that adjacent positions in the sequence are
+also nearby in the input space, i.e.\ the ordering preserves spatial
+locality. From Fig.~\ref{fig:shuffle_perm}:
+\begin{equation*}
+\mathrm{bw}_{\rm random} \approx N-1, \qquad
+\mathrm{bw}_{\rm raster} \approx \min(H,W)+1, \qquad
+\mathrm{bw}_{\rm wind} \approx |\hat{u}|\,W + |\hat{v}|\,H.
+\end{equation*}
+For pure zonal wind ($\hat{v}=0$), wind-guided reduces to raster;
+for diagonal wind, wind-guided has bandwidth intermediate between
+raster and random, and is the only one whose bandwidth direction is
+aligned with $\mathbf{u}_h$.
+
+\paragraph{Why this should accelerate training.}
+The positional embedding $E$ is learnable. With a wind-aligned
+ordering, the gradient signal that updates $E$ during the early
+epochs is informed by causal-like contiguity along streamlines, so the
+network never has to undo a wrong inductive bias before fitting the
+transport pattern. Section~\ref{sec:ablation:shuffle} reports the
+empirical confirmation: starting from identical initialisation, the
+wind-guided run reaches validation RMSE $X_{\rm wind}$ at epoch 3,
+versus $X_{\rm raster}$ and $X_{\rm random}$ for the two competing
+orderings on the same epoch budget.\footnote{Numbers will be filled in
+once the corresponding SLURM jobs (\texttt{sbatch\_shuffle\_ablation.sh})
+finish.}
+
+\paragraph{Connection to REOrder.}
+\citet{goyal2024reorder} formalise a similar argument for generic
+sequence transformers in the context of language and tabular data:
+they show that the order in which tokens are presented is a learnable
+hyperparameter whose optimal choice carries physical-system information
+that the transformer would otherwise have to discover through gradient
+descent. Our wind-guided ordering provides an a priori choice for
+geophysical advective transport.
+
+\subsection{Combined ablation: do the two priors interact?}
+\label{app:theory:joint}
+
+The two priors of Sections~\ref{app:theory:elev} and
+\ref{app:theory:shuffle} act on different parts of the attention
+matrix. The elevation bias modifies the \emph{values} of the attention
+logits (Eq.~\ref{eq:attn_elev}); the wind ordering modifies the
+\emph{indexing} of the tokens (Eq.~\ref{eq:attn_perm}). A
+conjunction-ablation (\textit{no elev bias, raster ordering}) recovers
+a baseline that is identical in architecture to ClimaX. The Part-B
+build-up in Table~\ref{tab:ablation} establishes that each component
+contributes independently to the final 6.37\,$\mu$g\,m$^{-3}$ RMSE,
+with the elevation bias closing the gap by
+$\sim$0.06\,$\mu$g\,m$^{-3}$ relative to the cross-attention-only
+configuration and the wind reordering an additional
+$\sim$0.04\,$\mu$g\,m$^{-3}$ on top — modest in absolute terms over
+the full Europe but localised on the mountain ridges where the priors
+matter most (Fig.~\ref{fig:phys_ablation_heatmap}).

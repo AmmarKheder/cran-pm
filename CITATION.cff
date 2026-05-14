@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use CRAN-PM in your research, please cite it as below."
+title: "CRAN-PM: Cross-Resolution Attention Network for high-resolution PM2.5 forecasting"
+abstract: >-
+  CRAN-PM is a multi-scale deep learning model for short-range (1-4 day)
+  PM2.5 surface concentration forecasting at high spatial resolution
+  over Europe. It combines ERA5 meteorology, CAMS chemistry and
+  high-resolution elevation through a cross-resolution attention bridge.
+type: software
+authors:
+  - family-names: Kheder
+    given-names: Ammar
+    email: ammarkheder@outlook.fr
+license: MIT
+repository-code: "https://github.com/AmmarKheder/cran-pm"
+url: "https://ammarkheder.github.io/cran-pm/"
+keywords:
+  - air quality
+  - PM2.5
+  - deep learning
+  - super-resolution
+  - atmospheric science
+  - ERA5
+  - CAMS
+version: 0.1.0
+date-released: 2026-05-10
