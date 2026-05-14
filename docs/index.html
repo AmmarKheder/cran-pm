@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CranPM Studio — Multi-scale Vision Transformer for high-resolution PM2.5 forecasting</title>
+<meta name="description" content="CRAN-PM v1.0: open-source Python package for short-range high-resolution surface PM2.5 forecasting over Europe. GMD release with reproducibility infrastructure, dual CUDA/ROCm support, and live demo." />
+<meta property="og:title" content="CranPM Studio — High-resolution PM2.5 Forecasting" />
+<meta property="og:description" content="Open-source 1 km PM2.5 forecasts over Europe. Cross-Resolution Attention Network with wind-guided ordering and elevation-aware attention." />
+<meta property="og:type" content="website" />
+<link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-row">
+    <a class="brand" href="#top">
+      <span class="brand-mark"></span>
+      <span class="brand-text">CranPM <em>Studio</em></span>
+    </a>
+    <nav class="nav">
+      <a href="#abstract">Paper</a>
+      <a href="#demo">Live demo</a>
+      <a href="#figures">Figures</a>
+      <a href="#code">Code &amp; data</a>
+      <a href="#cite">Cite</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-text">
+      <p class="kicker">Geoscientific Model Development &middot; v1.0</p>
+      <h1>CRAN-PM v1.0</h1>
+      <p class="tag">A multi-scale Vision Transformer for high-resolution
+        PM<sub>2.5</sub> forecasting over Europe</p>
+      <p class="lede">Open-source Python package that downscales 25 km ERA5/CAMS
+        reanalysis fields to <strong>1 km daily PM<sub>2.5</sub> forecasts</strong>
+        through a cross-resolution attention bridge with
+        <strong>wind-guided ordering</strong> and an
+        <strong>elevation-aware attention bias</strong>.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="#demo">Try the live demo</a>
+        <a class="btn btn-ghost" href="https://github.com/AmmarKheder/cran-pm">View on GitHub</a>
+      </div>
+      <ul class="badges">
+        <li><span>RMSE</span> 6.85 µg m<sup>-3</sup> @ T+1 (Europe, 2971 EEA stations)</li>
+        <li><span>OOD</span> 8 zero-shot regions tested (India, China, USA…)</li>
+        <li><span>GPU</span> dual NVIDIA CUDA + AMD ROCm</li>
+      </ul>
+    </div>
+    <div class="hero-art">
+      <img src="figures/fig_robinson_study_domain.png"
+           alt="Robinson projection of CRAN-PM training and OOD domains" />
+      <p class="cap">Training: Europe (in-distribution). Zero-shot OOD: 8 regions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AUTHORS ============ -->
+<section class="band band-light">
+  <div class="wrap authors">
+    <h2>Authors</h2>
+    <ol class="author-list">
+      <li><strong>Ammar Kheder</strong><sup>1,2</sup>
+        <span class="email">&lt;ammar.kheder@lut.fi&gt;</span>
+        <span class="badge corresp">corresponding</span></li>
+      <li><strong>Wenqing Peng</strong><sup>2,3</sup></li>
+      <li><strong>Helmi Toropainen</strong><sup>2,3</sup></li>
+      <li><strong>Zhi-Song Liu</strong><sup>1,2</sup></li>
+      <li><strong>Michael Boy</strong><sup>1,2,3</sup></li>
+    </ol>
+    <ol class="affil-list">
+      <li><sup>1</sup>Department of Computational Engineering,
+        LUT University, Lappeenranta, Finland</li>
+      <li><sup>2</sup>Atmospheric Modelling Centre Lahti (AMC-Lahti),
+        Lahti, Finland</li>
+      <li><sup>3</sup>Institute for Atmospheric and Earth System Research
+        (INAR), University of Helsinki, Helsinki, Finland</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============ ABSTRACT ============ -->
+<section id="abstract" class="band">
+  <div class="wrap narrow">
+    <h2>Abstract</h2>
+    <p>We present <strong>CRAN-PM v1.0</strong>, an open-source Python package
+    for short-range high-resolution surface PM<sub>2.5</sub> forecasting
+    over Europe. The underlying model is a dual-branch Vision Transformer
+    that fuses 25 km meteorological and chemistry fields with 1 km
+    satellite-derived PM<sub>2.5</sub> analyses through a cross-resolution
+    attention bridge. Beyond its scientific accuracy
+    (RMSE = 6.85 µg m<sup>-3</sup> at T+1 against 2 971 EEA stations,
+    4.7–10.7 % lower than the best deep-learning baseline), the package
+    emphasises <em>reproducibility, GPU portability and accessibility to
+    atmospheric scientists</em>. CRAN-PM ships with a stable Python API,
+    command-line interface, training and inference workflows, dual support
+    for NVIDIA CUDA and AMD ROCm, container images, a HuggingFace model
+    repository and a Gradio web demonstrator.</p>
+  </div>
+</section>
+
+<!-- ============ DEMO ============ -->
+<section id="demo" class="band band-dark">
+  <div class="wrap">
+    <h2>Live demo</h2>
+    <p class="centered-text">
+      Pick a date in 2017–2022 and a target region, the back-end runs CRAN-PM
+      on cached ERA5/CAMS inputs and renders the 1 km T+1 forecast.
+      No setup required.
+    </p>
+    <div class="demo-frame">
+      <iframe
+        src="https://ammarkheder-cran-pm.hf.space"
+        title="CRAN-PM live demo"
+        allow="fullscreen"
+        loading="lazy"></iframe>
+    </div>
+    <p class="centered-text small">
+      Running on HuggingFace Spaces (CPU free tier; ~60 s/inference). For
+      heavy workloads, install the package locally —
+      <a href="#code">see Code &amp; data</a>.
+    </p>
+  </div>
+</section>
+
+<!-- ============ FIGURES ============ -->
+<section id="figures" class="band">
+  <div class="wrap">
+    <h2>Figures</h2>
+    <p class="centered-text">
+      Selected figures from the paper. All are reproducible from the
+      scripts in <code>paper/scripts/</code>; click any thumbnail for the
+      full-size PDF.
+    </p>
+
+    <div class="grid-figs">
+
+      <a class="card" href="figures/fig_robinson_study_domain.png">
+        <img src="figures/fig_robinson_study_domain.png" alt="" />
+        <div class="card-body">
+          <h3>Study domain</h3>
+          <p>Robinson global view: training Europe + 8 zero-shot OOD regions
+          + 12 k stations.</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_attention_elevation_slicer.png">
+        <img src="figures/fig_attention_elevation_slicer.png" alt="" />
+        <div class="card-body">
+          <h3>Elevation-aware attention</h3>
+          <p>Attention from a Po Valley source: the elevation bias carves a
+          clear shadow along the Alpine ridge.</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_froude_elevation.png">
+        <img src="figures/fig_froude_elevation.png" alt="" />
+        <div class="card-body">
+          <h3>Froude diagnostic</h3>
+          <p>Fr = U/(NH) over Europe: lower CRAN-PM error inside blocked
+          (Fr&lt;1) regions.</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_china_shuffling_paths.gif">
+        <img src="figures/fig_china_shuffling_paths.png" alt="" />
+        <div class="card-body">
+          <h3>Patch shuffling (animation)</h3>
+          <p>Random vs raster vs wind-guided ordering on the China OOD
+          domain (animated GIF).</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_shuffle_lagrangian_frame.png">
+        <img src="figures/fig_shuffle_lagrangian_frame.png" alt="" />
+        <div class="card-body">
+          <h3>Lagrangian frame</h3>
+          <p>Wind-guided ordering = discrete streamline coordinate of an
+          advective transport.</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_shuffle_loss_curves.png">
+        <img src="figures/fig_shuffle_loss_curves.png" alt="" />
+        <div class="card-body">
+          <h3>Shuffling ablation</h3>
+          <p>From-scratch training of 3 patch-ordering strategies, 3 epochs
+          each.</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_physics_ablations_bars.png">
+        <img src="figures/fig_physics_ablations_bars.png" alt="" />
+        <div class="card-body">
+          <h3>Physics ablation</h3>
+          <p>Test-time interventions on each physical prior: the model is
+          materially sensitive to wind, elevation, and chemistry.</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_physics_ablations_heatmap.png">
+        <img src="figures/fig_physics_ablations_heatmap.png" alt="" />
+        <div class="card-body">
+          <h3>Physics × method heatmap</h3>
+          <p>RMSE degradation per (model × intervention). CRAN-PM has the
+          largest sensitivity to physics.</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_ood_teaser_india.png">
+        <img src="figures/fig_ood_teaser_india.png" alt="" />
+        <div class="card-body">
+          <h3>Zero-shot — India</h3>
+          <p>Hotspot day map with Delhi NCR / IGP / Mumbai zooms.</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_ood_scatter_india.png">
+        <img src="figures/fig_ood_scatter_india.png" alt="" />
+        <div class="card-body">
+          <h3>Zero-shot scatter — India</h3>
+          <p>Annual mean GHAP vs CRAN-PM (2022, 364 days).</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_case_saharan_dust_maps.png">
+        <img src="figures/fig_case_saharan_dust_maps.png" alt="" />
+        <div class="card-body">
+          <h3>Case study — Saharan dust</h3>
+          <p>March 2022 intrusion: CRAN-PM tracks the trans-boundary
+          advection.</p>
+        </div>
+      </a>
+
+      <a class="card" href="figures/fig_gpu_benchmarks.png">
+        <img src="figures/fig_gpu_benchmarks.png" alt="" />
+        <div class="card-body">
+          <h3>GPU benchmarks</h3>
+          <p>Throughput &amp; memory on AMD MI250X (ROCm) across bf16 /
+          fp16 / fp32.</p>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============ CODE & DATA ============ -->
+<section id="code" class="band band-light">
+  <div class="wrap narrow">
+    <h2>Code &amp; data availability</h2>
+
+    <div class="grid-2">
+      <div>
+        <h3>Source code</h3>
+        <ul class="links">
+          <li><a href="https://github.com/AmmarKheder/cran-pm">GitHub: AmmarKheder/cran-pm</a></li>
+          <li>Zenodo DOI: <code>10.5281/zenodo.XXXXXXX</code> (release v1.0.0, pending)</li>
+          <li>Install: <code>pip install cran-pm</code></li>
+          <li>License: MIT</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Pre-trained model</h3>
+        <ul class="links">
+          <li><a href="https://huggingface.co/ammarkheder/cran-pm-europe">HuggingFace: ammarkheder/cran-pm-europe</a></li>
+          <li>File: <code>cranpm-europe-v1.0.ckpt</code> (1.14 GB)</li>
+          <li>Loader:
+            <pre><code>from cranpm import CRANPMForecaster
+m = CRANPMForecaster.from_pretrained(
+    "ammarkheder/cran-pm-europe")</code></pre>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Input datasets</h3>
+        <ul class="links">
+          <li>ERA5 reanalysis — Copernicus CDS</li>
+          <li>CAMS atmospheric composition — Copernicus ADS</li>
+          <li>GHAP daily PM<sub>2.5</sub> — Wei et al. 2023
+            (Zenodo 10.5281/zenodo.6398971)</li>
+          <li>GMTED2010 elevation — USGS</li>
+          <li>EEA air-quality stations — European Environment Agency</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3>Predictions &amp; evaluations</h3>
+        <ul class="links">
+          <li>Europe 2022 T+1 predictions (~30 GB)</li>
+          <li>8 OOD region predictions</li>
+          <li>All evaluation JSONs &amp; figures</li>
+          <li>Zenodo data bundle: <code>10.5281/zenodo.YYYYYYY</code>
+            (pending)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CITATION ============ -->
+<section id="cite" class="band">
+  <div class="wrap narrow">
+    <h2>Cite</h2>
+    <p>If you use CRAN-PM in your research, please cite both the
+    software release (Zenodo) and the manuscript:</p>
+    <pre><code>@article{kheder2026cranpm_gmd,
+  title   = {CRAN-PM v1.0: a multi-scale Vision Transformer for
+             high-resolution PM2.5 forecasting over Europe},
+  author  = {Kheder, Ammar and Peng, Wenqing and Toropainen, Helmi and
+             Liu, Zhi-Song and Boy, Michael},
+  journal = {Geoscientific Model Development},
+  year    = {2026},
+  note    = {Submitted},
+}</code></pre>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-row">
+    <span>CranPM Studio &copy; 2026 the authors. MIT licensed.</span>
+    <span class="links-sep">
+      <a href="https://github.com/AmmarKheder/cran-pm">GitHub</a> &middot;
+      <a href="https://huggingface.co/ammarkheder/cran-pm-europe">HuggingFace</a> &middot;
+      <a href="#top">Top</a>
+    </span>
+  </div>
+</footer>
+
+</body>
+</html>
