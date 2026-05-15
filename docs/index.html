@@ -392,5 +392,68 @@ m = CRANPMForecaster.from_pretrained(
   </div>
 </footer>
 
+<!-- Floating help / report bubble -->
+<style>
+#hbBtn{position:fixed;right:22px;bottom:22px;width:60px;height:60px;
+ border-radius:50%;background:#b91c1c;color:#fff;border:none;cursor:pointer;
+ font-size:26px;box-shadow:0 6px 20px rgba(0,0,0,.25);z-index:9998;
+ transition:transform .15s}
+#hbBtn:hover{transform:scale(1.08)}
+#hbPanel{position:fixed;right:22px;bottom:94px;width:340px;max-width:92vw;
+ background:#fff;border:1px solid #e6eaef;border-radius:16px;
+ box-shadow:0 14px 48px rgba(15,23,42,.22);z-index:9999;display:none;
+ overflow:hidden;font-family:inherit}
+#hbPanel.open{display:block;animation:hbIn .18s ease-out}
+@keyframes hbIn{from{opacity:0;transform:translateY(12px)}to{opacity:1}}
+#hbHead{background:#b91c1c;color:#fff;padding:14px 16px;font-weight:600}
+#hbHead small{display:block;font-weight:400;opacity:.85;font-size:.8rem}
+#hbBody{padding:14px 16px;max-height:60vh;overflow:auto}
+#hbBody label{display:block;font-size:.82rem;color:#444;margin:8px 0 3px}
+#hbBody select,#hbBody input,#hbBody textarea{width:100%;padding:8px;
+ border:1px solid #d8dee6;border-radius:8px;font:inherit;box-sizing:border-box}
+#hbBody button{margin-top:12px;width:100%;background:#b91c1c;color:#fff;
+ border:none;padding:11px;border-radius:9px;font-weight:600;cursor:pointer}
+#hbNote{font-size:.8rem;color:#666;margin-top:8px}
+</style>
+<button id="hbBtn" aria-label="Report a problem" title="Report a problem"
+        onclick="hbToggle()">💬</button>
+<div id="hbPanel" role="dialog" aria-label="Report a problem">
+  <div id="hbHead">Report a problem / feedback
+    <small>Reaches the AMC-Lahti team</small></div>
+  <div id="hbBody">
+    <label>Category</label>
+    <select id="hbCat">
+      <option>Bug / error</option>
+      <option>Wrong or suspicious forecast</option>
+      <option>Data / date request</option>
+      <option>Feature request</option>
+      <option>Question</option>
+      <option>Other</option>
+    </select>
+    <label>Your email (optional, for a reply)</label>
+    <input id="hbEmail" type="email" placeholder="you@example.com">
+    <label>Describe the problem</label>
+    <textarea id="hbMsg" rows="4"
+      placeholder="What happened? Which coordinates / date?"></textarea>
+    <button onclick="hbSend()">Send ticket</button>
+    <div id="hbNote"></div>
+  </div>
+</div>
+<script>
+function hbToggle(){document.getElementById('hbPanel').classList.toggle('open');}
+function hbSend(){
+  var c=document.getElementById('hbCat').value,
+      e=document.getElementById('hbEmail').value.trim(),
+      m=document.getElementById('hbMsg').value.trim(),
+      n=document.getElementById('hbNote');
+  if(m.length<10){n.textContent='Please describe the problem (a sentence).';return;}
+  var body=encodeURIComponent(m+'\n\n— contact: '+(e||'n/a')),
+      title=encodeURIComponent('['+c+'] CRAN-PM demo report');
+  window.open('https://github.com/AmmarKheder/cran-pm/issues/new?title='
+    +title+'&body='+body,'_blank','noopener');
+  n.textContent='Opening a pre-filled GitHub issue — click “Submit” there to finish.';
+}
+</script>
+
 </body>
 </html>
