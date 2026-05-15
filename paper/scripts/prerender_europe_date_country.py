@@ -38,13 +38,24 @@ OUT = Path("/tmp/cranpm_hf_space/europe_daily")
 OUT.mkdir(parents=True, exist_ok=True)
 
 
+# Monotonic white -> yellow -> orange -> red -> brown ramp so the sea
+# (GHAP is 0 / NaN over water) renders pure white instead of dark blue.
 GHAP_COLORS = [
-    "#08306b", "#08519c", "#2171b5", "#4292c6", "#6baed6",
-    "#9ecae1", "#c6dbef", "#deebf7",
-    "#ffffcc", "#ffeda0", "#fed976", "#feb24c",
-    "#fd8d3c", "#fc4e2a", "#e31a1c", "#bd0026", "#800026",
+    "#ffffff", "#fff7bc", "#fee391", "#fec44f", "#fe9929",
+    "#ec7014", "#cc4c02", "#993404", "#662506",
 ]
 CMAP = LinearSegmentedColormap.from_list("ghap", GHAP_COLORS, N=256)
+CMAP = CMAP.copy()
+CMAP.set_bad("white")  # masked sea / no-data -> white
+
+
+def _mask_sea(gt, pr):
+    """Mask ocean / no-data (GHAP <= 0 or non-finite) on both panels so
+    they render white via CMAP.set_bad."""
+    sea = ~np.isfinite(gt) | (gt <= 0.0)
+    gt_m = np.ma.masked_where(sea, gt)
+    pr_m = np.ma.masked_where(sea, np.clip(np.nan_to_num(pr), 0.0, None))
+    return gt_m, pr_m, ~sea
 
 
 # Country / city → (label, lat_min, lat_max, lon_min, lon_max).
@@ -97,20 +108,23 @@ def render_day(country_name, box, day_doy, ghap_z, pred_z, year=2022):
     norm = Normalize(vmin=0, vmax=vmax)
     extent = (lon_min, lon_max, lat_min, lat_max)
 
+    gt_m, pr_m, _ = _mask_sea(gt, pr)
     fig, axes = plt.subplots(1, 2, figsize=(10.5, 5.0),
                               gridspec_kw={"wspace": 0.18})
     fig.patch.set_facecolor("white")
-    axes[0].imshow(gt[::2, ::2], extent=extent, origin="upper",
+    for ax in axes:
+        ax.set_facecolor("white")
+    axes[0].imshow(gt_m[::2, ::2], extent=extent, origin="upper",
                    cmap=CMAP, norm=norm, aspect="auto",
-                   interpolation="bilinear")
+                   interpolation="nearest")
     axes[0].set_title("GHAP truth", fontsize=11, fontweight="bold")
     axes[0].set_xlabel("Longitude (°E)", fontsize=9)
     axes[0].set_ylabel("Latitude (°N)", fontsize=9)
     axes[0].tick_params(labelsize=8)
 
-    im = axes[1].imshow(pr[::2, ::2], extent=extent, origin="upper",
+    im = axes[1].imshow(pr_m[::2, ::2], extent=extent, origin="upper",
                         cmap=CMAP, norm=norm, aspect="auto",
-                        interpolation="bilinear")
+                        interpolation="nearest")
     axes[1].set_title("CRAN-PM T+1", fontsize=11, fontweight="bold")
     axes[1].set_xlabel("Longitude (°E)", fontsize=9)
     axes[1].tick_params(labelsize=8)
@@ -194,20 +208,23 @@ def main():
             vmax = max(40.0, float(np.nanpercentile(gt, 98)))
             norm = Normalize(vmin=0, vmax=vmax)
             extent = (lon_min, lon_max, lat_min, lat_max)
+            gt_m, pr_m, _ = _mask_sea(gt, pr)
             fig, axes = plt.subplots(1, 2, figsize=(10.5, 5.0),
                                       gridspec_kw={"wspace": 0.18})
             fig.patch.set_facecolor("white")
-            axes[0].imshow(gt[::2, ::2], extent=extent, origin="upper",
+            for ax in axes:
+                ax.set_facecolor("white")
+            axes[0].imshow(gt_m[::2, ::2], extent=extent, origin="upper",
                             cmap=CMAP, norm=norm, aspect="auto",
-                            interpolation="bilinear")
+                            interpolation="nearest")
             axes[0].set_title(f"GHAP truth — {cname}",
                                fontsize=10.5, fontweight="bold")
             axes[0].set_xlabel("Longitude (°E)", fontsize=9)
             axes[0].set_ylabel("Latitude (°N)", fontsize=9)
             axes[0].tick_params(labelsize=8)
-            im = axes[1].imshow(pr[::2, ::2], extent=extent, origin="upper",
+            im = axes[1].imshow(pr_m[::2, ::2], extent=extent, origin="upper",
                                  cmap=CMAP, norm=norm, aspect="auto",
-                                 interpolation="bilinear")
+                                 interpolation="nearest")
             axes[1].set_title(f"CRAN-PM T+1 — {date_str}",
                                fontsize=10.5, fontweight="bold")
             axes[1].set_xlabel("Longitude (°E)", fontsize=9)
