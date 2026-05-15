@@ -24,6 +24,7 @@
       <a href="#figures">Figures</a>
       <a href="#code">Code &amp; data</a>
       <a href="#cite">Cite</a>
+      <a href="#contact">Contact</a>
     </nav>
   </div>
 </header>
@@ -320,6 +321,61 @@ m = CRANPMForecaster.from_pretrained(
   year   = {2026},
   note   = {Atmospheric Modelling Centre Lahti (AMC-Lahti)},
 }</code></pre>
+  </div>
+</section>
+
+<section id="contact" class="band">
+  <div class="wrap narrow">
+    <h2>Contact &amp; report a problem</h2>
+    <p>Found a bug, a suspicious forecast, or have a question? Send a
+    ticket to the <a href="https://www.amc-lahti.fi" target="_blank"
+    rel="noopener">AMC-Lahti</a> team. It opens a tracked issue on
+    GitHub (you can also use the chat in the
+    <a href="#demo">live demo</a>).</p>
+    <form id="ticketForm" onsubmit="return sendTicket(event)">
+      <p>
+        <label>Category<br>
+        <select id="tkCat">
+          <option>Bug / error</option>
+          <option>Wrong or suspicious forecast</option>
+          <option>Data / date request</option>
+          <option>Feature request</option>
+          <option>Question</option>
+          <option>Other</option>
+        </select></label>
+      </p>
+      <p>
+        <label>Your email (optional, for a reply)<br>
+        <input id="tkEmail" type="email" placeholder="you@example.com"
+               style="min-width:18rem"></label>
+      </p>
+      <p>
+        <label>Describe the problem<br>
+        <textarea id="tkMsg" rows="5" style="width:100%"
+          placeholder="What happened? Which coordinates / date? What did you expect?"></textarea></label>
+      </p>
+      <p>
+        <button class="btn btn-primary" type="submit">Send ticket</button>
+        &nbsp;<span id="tkNote" style="color:#666"></span>
+      </p>
+    </form>
+    <script>
+    function sendTicket(e){
+      e.preventDefault();
+      var cat=document.getElementById('tkCat').value;
+      var email=document.getElementById('tkEmail').value.trim();
+      var msg=document.getElementById('tkMsg').value.trim();
+      if(msg.length<10){document.getElementById('tkNote').textContent=
+        'Please describe the problem (a sentence or more).';return false;}
+      var body=encodeURIComponent(msg+'\n\n— contact: '+(email||'n/a'));
+      var title=encodeURIComponent('['+cat+'] CRAN-PM demo report');
+      window.open('https://github.com/AmmarKheder/cran-pm/issues/new?title='
+        +title+'&body='+body,'_blank','noopener');
+      document.getElementById('tkNote').textContent=
+        'Opening a pre-filled GitHub issue — submit it there to finish.';
+      return false;
+    }
+    </script>
   </div>
 </section>
 
