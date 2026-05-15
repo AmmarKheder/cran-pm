@@ -376,6 +376,39 @@ m = CRANPMForecaster.from_pretrained(
       return false;
     }
     </script>
+
+    <h3 style="margin-top:2.2rem">Existing tickets</h3>
+    <p style="color:#666;font-size:.9rem">Live from
+    <a href="https://github.com/AmmarKheder/cran-pm/issues"
+       target="_blank" rel="noopener">GitHub Issues</a> — open reports
+    from the community.</p>
+    <div id="ghIssues" style="font-size:.93rem">Loading…</div>
+    <script>
+    (function(){
+      fetch('https://api.github.com/repos/AmmarKheder/cran-pm/issues?state=open&per_page=15&sort=created&direction=desc',
+        {headers:{'Accept':'application/vnd.github+json'}})
+      .then(function(r){return r.ok?r.json():Promise.reject(r.status);})
+      .then(function(items){
+        var el=document.getElementById('ghIssues');
+        items=(items||[]).filter(function(i){return !i.pull_request;});
+        if(!items.length){el.innerHTML=
+          '<em>No open tickets right now.</em>';return;}
+        el.innerHTML='<ul style="list-style:none;padding:0;margin:0">'+
+          items.map(function(i){
+            var d=new Date(i.created_at).toISOString().slice(0,10);
+            return '<li style="padding:9px 0;border-bottom:1px solid #eee">'+
+              '<a href="'+i.html_url+'" target="_blank" rel="noopener">'+
+              '#'+i.number+' — '+
+              i.title.replace(/</g,'&lt;')+'</a>'+
+              ' <span style="color:#999">· '+d+
+              ' · 💬 '+i.comments+'</span></li>';
+          }).join('')+'</ul>';
+      })
+      .catch(function(){document.getElementById('ghIssues').innerHTML=
+        '<a href="https://github.com/AmmarKheder/cran-pm/issues" '+
+        'target="_blank" rel="noopener">View tickets on GitHub →</a>';});
+    })();
+    </script>
   </div>
 </section>
 
@@ -437,6 +470,10 @@ m = CRANPMForecaster.from_pretrained(
       placeholder="What happened? Which coordinates / date?"></textarea>
     <button onclick="hbSend()">Send ticket</button>
     <div id="hbNote"></div>
+    <div style="margin-top:10px;font-size:.82rem">
+      <a href="https://github.com/AmmarKheder/cran-pm/issues"
+         target="_blank" rel="noopener">See existing tickets →</a>
+    </div>
   </div>
 </div>
 <script>
