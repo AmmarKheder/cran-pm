@@ -23,4 +23,9 @@ keywords:
   - ERA5
   - CAMS
 version: 1.0.0
-date-released: 2026-05-10
+date-released: 2026-05-19
+doi: 10.5281/zenodo.20285633
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.20285633
+    description: "Zenodo archive of the v1.0.0 release"

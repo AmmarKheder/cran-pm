@@ -278,7 +278,7 @@
         <h3>Source code</h3>
         <ul class="links">
           <li><a href="https://github.com/AmmarKheder/cran-pm">GitHub: AmmarKheder/cran-pm</a></li>
-          <li>Zenodo DOI: <code>10.5281/zenodo.XXXXXXX</code> (release v1.0.0, pending)</li>
+          <li>Zenodo DOI (v1.0.0): <a href="https://doi.org/10.5281/zenodo.20285633"><code>10.5281/zenodo.20285633</code></a></li>
           <li>Install: <code>pip install cran-pm</code></li>
           <li>Docker (reproducible runtime):<br>
             <code>docker run --rm ghcr.io/ammarkheder/cran-pm:v1.0.0 cranpm --help</code><br>
@@ -315,11 +315,10 @@ m = CRANPMForecaster.from_pretrained(
       <div>
         <h3>Predictions &amp; evaluations</h3>
         <ul class="links">
-          <li>Europe 2022 T+1 predictions (~30 GB)</li>
-          <li>8 OOD region predictions</li>
-          <li>All evaluation JSONs &amp; figures</li>
-          <li>Zenodo data bundle: <code>10.5281/zenodo.YYYYYYY</code>
-            (pending)</li>
+          <li>Europe 2022 per-date input bundles + CRAN-PM forecasts +
+            matched EEA observations:
+            <a href="https://huggingface.co/datasets/ammarkheder/cran-pm-europe-bundles">HuggingFace dataset</a></li>
+          <li>8 OOD region predictions &amp; evaluation JSONs/figures (in the repo release)</li>
         </ul>
       </div>
     </div>
