@@ -121,12 +121,14 @@ harness, see Section~\ref{sec:perf}).
 The package ships with three layers of reproducibility tooling.
 
 \paragraph{Pinned environments.}
-A locked dependency set (\texttt{requirements.lock}) gives an exact
-reproduction of the development environment. Two Docker images
-(\texttt{cranpm/cuda:0.1.0}, \texttt{cranpm/rocm:0.1.0}) provide
-hermetic runtimes including system-level dependencies. The CUDA
-image is published on Docker Hub; the ROCm image targets LUMI's
-ROCm 6.0.3.
+A pinned dependency set gives an exact reproduction of the runtime
+environment. A reproducible CPU/CUDA image
+(\texttt{ghcr.io/ammarkheder/cran-pm:v1.0.0}) is built from
+\texttt{docker/Dockerfile} and published automatically to the GitHub
+Container Registry by a release workflow, providing a hermetic runtime
+including system-level dependencies. Training on LUMI's AMD MI250X
+partition uses the ROCm~6.0.3 stack through Singularity, documented in
+the repository.
 
 \paragraph{Continuous integration.}
 GitHub Actions runs the unit and integration test suite on Python
