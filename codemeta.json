@@ -1,0 +1,22 @@
+{
+  "@context": "https://doi.org/10.5063/schema/codemeta-2.0",
+  "@type": "SoftwareSourceCode",
+  "name": "CRAN-PM",
+  "description": "Cross-Resolution Attention Network for high-resolution PM2.5 forecasting over Europe: a multi-scale deep-learning model fusing ERA5 meteorology and CAMS chemistry with 1 km satellite PM2.5 through a cross-resolution attention bridge.",
+  "version": "1.0.0",
+  "license": "https://spdx.org/licenses/MIT",
+  "codeRepository": "https://github.com/AmmarKheder/cran-pm",
+  "url": "https://ammarkheder.github.io/cran-pm/",
+  "programmingLanguage": "Python",
+  "runtimePlatform": "Python 3.10+",
+  "operatingSystem": "Linux",
+  "author": [
+    { "@type": "Person", "givenName": "Ammar", "familyName": "Kheder" }
+  ],
+  "keywords": [
+    "air quality", "PM2.5", "deep learning", "vision transformer",
+    "atmospheric science", "ERA5", "CAMS", "downscaling"
+  ],
+  "developmentStatus": "active",
+  "issueTracker": "https://github.com/AmmarKheder/cran-pm/issues"
+}
