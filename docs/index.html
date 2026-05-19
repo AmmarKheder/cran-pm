@@ -323,6 +323,27 @@ m = CRANPMForecaster.from_pretrained(
         </ul>
       </div>
     </div>
+
+    <h3 style="margin-top:2.4rem">Run with Docker</h3>
+    <p>A pinned CPU/CUDA image is published to the GitHub Container
+    Registry on every release, so you can run CRAN-PM with no local
+    Python setup — identical environment, reproducible for years.</p>
+    <pre><code># pull the released image
+docker pull ghcr.io/ammarkheder/cran-pm:v1.0.0
+
+# command-line help
+docker run --rm ghcr.io/ammarkheder/cran-pm:v1.0.0 cranpm --help
+
+# run a forecast (mount a folder for inputs/outputs)
+docker run --rm -v "$PWD":/data ghcr.io/ammarkheder/cran-pm:v1.0.0 \
+    cranpm forecast --date 2022-03-15 --region europe --out /data</code></pre>
+    <p style="color:#666;font-size:.9rem">Image:
+    <a href="https://github.com/AmmarKheder/cran-pm/pkgs/container/cran-pm">
+    ghcr.io/ammarkheder/cran-pm</a> · built from
+    <code>docker/Dockerfile</code> by the <em>Publish Docker image</em>
+    GitHub Actions workflow. Training on AMD&nbsp;MI250X (LUMI) uses the
+    ROCm stack via Singularity — see the
+    <a href="https://github.com/AmmarKheder/cran-pm#readme">README</a>.</p>
   </div>
 </section>
 
