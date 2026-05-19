@@ -62,7 +62,19 @@ wildfires, and the January 2022 Polish/Slovak winter heating
 episode (Section~\ref{sec:cases}).
 \end{itemize}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_concept.pdf}
+\caption{CRAN-PM bridges the resolution gap between coarse
+($\sim$25\,km) ERA5/CAMS drivers and 1\,km satellite-derived
+PM\textsubscript{2.5} and elevation through a cross-resolution
+attention fusion, producing a 1\,km next-day forecast over Europe
+that is validated against independent EEA ground stations.}
+\label{fig:concept}
+\end{figure}
+
 \paragraph{Scope and roadmap.}
+The overall approach is summarised in Figure~\ref{fig:concept}.
 Section~\ref{sec:related} situates CRAN-PM in the existing
 software ecosystem for European air-quality forecasting.
 Section~\ref{sec:model} summarises the model architecture (the

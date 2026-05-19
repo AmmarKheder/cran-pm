@@ -55,6 +55,18 @@ tiles and stitches the residual outputs.
 \subsection{Architecture overview}
 \label{sec:model:arch}
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig_architecture.pdf}
+\caption{CRAN-PM architecture. A global branch encodes 25\,km
+ERA5/CAMS context and a local branch encodes the 1\,km
+GHAP/elevation field; a cross-resolution attention bridge (local
+queries attending to global keys/values, with an elevation-aware
+bias) couples the two scales, and a CNN decoder produces the 1\,km
+increment that is added to the persistence baseline.}
+\label{fig:architecture}
+\end{figure*}
+
 Figure~\ref{fig:architecture} shows the dual-branch design.
 \begin{enumerate}
 \item The \textbf{global branch} encodes coarse meteorology with a
